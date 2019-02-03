@@ -21,6 +21,13 @@ mongoose.connect(CONNECTION_URI, {
   process.exit()
 })
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+  next()
+})
+
 app.get('/', (req, res) => {
   res.json({'message': 'Welcome to todo-list application.'})
 })
