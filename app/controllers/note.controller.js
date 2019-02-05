@@ -1,14 +1,15 @@
 const Note = require('../models/note.model.js')
 
 exports.create = (req, res) => {
-  if (!req.body.content) {
+  if (!req.body.description) {
     return res.status(400).send({
-      message: 'Note content can not be empty'
+      message: 'Note description can not be empty'
     })
   }
   const note = new Note({
     title: req.body.title,
-    content: req.body.content
+    description: req.body.description,
+    status: 'todo'
   })
   note.save()
     .then(data => {
@@ -22,7 +23,7 @@ exports.create = (req, res) => {
 }
 
 exports.findAll = (req, res) => {
-  Note.find()
+  Note.find(req.query)
     .then(notes => {
       res.send(notes)
     })
@@ -56,15 +57,16 @@ exports.findOne = (req, res) => {
 }
 
 exports.update = (req, res) => {
-  if (!req.body.content) {
+  if (!req.body.description) {
     return res.status(400).send({
-      message: 'Note content can not be empty'
+      message: 'Note description can not be empty'
     })
   }
 
   Note.findByIdAndUpdate(req.params.noteId, {
     title: req.body.title,
-    content: req.body.content
+    description: req.body.description,
+    status: req.body.status
   }, {new: true})
     .then(note => {
       if (!note) {
@@ -104,6 +106,22 @@ exports.delete = (req, res) => {
       }
       return res.status(500).send({
         message: 'Could not delete note with id ' + req.params.noteId
+      })
+    })
+}
+
+exports.count = (req, res) => {
+  Note.find()
+    .then(notes => {
+      const response = {
+        todo: notes.filter(n => n.status === 'todo').length,
+        done: notes.filter(n => n.status === 'done').length
+      }
+      res.send(response)
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || 'Some error occurred while retrieving notes.'
       })
     })
 }
